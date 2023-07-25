@@ -6,17 +6,27 @@ body {
   }
   
 header {
-    background-color: #333;
+    background-color: black;
     color: #fff;
-    text-align: center;
-    padding: 1rem;
+    text-align: left;
+    padding: 0.3rem;
+  }
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .header-content h2 {
+    font-size: 1.3rem;
+    margin-left: 2rem;
   }
   
 nav {
-    
+    font-size: 0.8rem;
     display: flex;
     justify-content: right;
-    padding: 0.1rem;
+    margin-right: 2rem;    
   }
   
 nav a {
@@ -29,21 +39,62 @@ nav a {
     background-color: #555;
   }
 
-  .center {
-    text-align: center;
-    width: 100%;
+  
+  #home {
+    position: relative;
+    background-image: url("Img/BG_CarRental.jpg");
+    height: 100vh;
+    background-position: center;
+    background-size: cover;
+    opacity: 80%;
+  }
+  #home::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4); 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
+    opacity: 0; 
+    transition: opacity 0.3s ease; 
+  }
+  #home:hover::before {
+    opacity: 1; 
   }
   
-
+  .home-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #fff;
+  }
+  
+  .home-center h2 {
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+  }
+  
+  .home-center p {
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+  
   .tab {
     display: flex;
     justify-content: center;
-    background-color: #444;
     padding: 0.5rem;
   }
   .tab-section{
     gap: 1rem;
     padding: 1rem;
+  }
+
+  .tab-section h2{
+    text-align: center;
   }
   
   .tablinks {
@@ -66,37 +117,42 @@ nav a {
   .tablinks:hover {
     background-color: #555;
   }
+
+  #cars{
+    background-color: grey;
+  }
   
   .car-listing {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1rem;
+    gap: 0.3rem;
     padding: 1rem;
   }
   
   .car-card {
-    border: 1px solid #ccc;
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color:  whitesmoke;
     padding: 1rem;
     border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   }
   
   .car-image {
-    width: 80px;
+    /* Styles for car image */
+    flex: 3; /* 30% of the width */
     position: relative;
-    overflow: hidden;
+    height: 60vh;
   }
   
   .car-image img {
-    max-width: 100%;
-    border-radius: 5px;
-    transition: transform 0.3s ease-in-out;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Display the image at full size and maintain aspect ratio */
   }
   
-  .car-image:hover img {
-    transform: translateX(20px); /* Adjust the value to control the movement */
-  }
-
   /*Customize Slick carousel*/
  /* Slider styles */
   .slider-container {
@@ -148,12 +204,18 @@ nav a {
   
   .contact {
     text-align: left;
-    padding: 2rem;
-    background-color: #f4f4f4;
+    padding: 1rem;
+    background-color: black;
   }
-  
-  .contact p {
+  .contact h2 {
     margin-bottom: 1rem;
+    color: #fff;
+  }
+
+  .contact p {
+    line-height: 40%;
+    margin-bottom: 1rem;
+    color: #fff;
   }
 
   /* Popup modal styles */
