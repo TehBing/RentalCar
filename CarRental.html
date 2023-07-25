@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Rental Company</title>
+  <link rel="stylesheet" href="CarRentalcss.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h2>Need4Speed</h2>
+            <nav class="tab">
+                  <a href="#" class="tablinks active" onclick="openSection(event, 'home')">Home</a>
+                  <a href="#" class="tablinks" onclick="openSection(event, 'cars')">Cars</a>
+            </nav>
+    </div>
+  </header>
+  
+  
+
+  <section id="home" class="tab-section ">
+    <!-- Home content goes here -->
+    <div class="home-center">
+        <h2>Maximise Your Exprience</h2>
+        <p>You cannot buy time so you rent it from us</p>
+    </div>
+  </section>
+
+  <section id="cars" class="tab-section car-listing" style="display: none;">
+    <!-- Cars content goes here -->
+    <div class="car-card slider-container">
+        <div class="slider">
+            <div class="slide" alt="slide 1">
+                <div class="car-image" >
+                <img src="Img\car1.jpg" alt="Car 1">
+                </div>
+
+                <div class="car-detail">
+                  <div>
+                    <h3>Toyota Vios</h3>
+                    <p>Price per day: $80</p>
+                    <p>With its stylish design, modern features, and reputable reliability, the Toyota Vios is a practical and smart choice for those seeking a dependable and versatile compact sedan. Whether you're commuting to work, running errands, or embarking on a road trip.</p>
+                    <button>Book Now</button>
+                  </div>
+                </div>
+                
+            </div>
+
+            <div class="slide" alt="slide 2">
+               
+              <div class="car-image" >
+                <img src="Img\car2.jpg" alt="Car 1">
+                </div>
+
+                <div class="car-detail">
+                  <div>
+                    <h3>Ferrari</h3>
+                    <p>Price per day: $600</p>
+                    <p>Want to get married in style and save the earth by reducing carbon by renting this legendary luxury sports car brand that represents the pinnacle of automotive engineering and performance. With a history dating back to the 1940s, Ferrari has become synonymous with speed, power, and elegance.</p>
+                    <button>Book Now</button>
+                  </div>
+                </div>
+            </div>
+
+      <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
+      <a class="next" onclick="changeSlide(1)">&#10095;</a>
+        </div>
+  </section>
+
+  <section class="contact">
+    <h2>Contact Us</h2>
+    <p>For inquiries and bookings, please get in touch:</p>
+    <p>Email: Need4Speed@google.com</p>
+    <p>Phone: +65 96965758</p>
+  </section>
+
+   <!-- Popup modal -->
+   <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <h2>Welcome to Car Rental Company</h2>
+      <p>Please sign in or register to continue.</p>
+      <button onclick="openSignInForm()">Sign In</button>
+      <button onclick="openRegisterForm()">Register</button>
+    </div>
+  </div>
+
+  <script src="CarRentalJs.js"></script>
+</body>
+</html>
