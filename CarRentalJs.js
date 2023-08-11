@@ -36,11 +36,11 @@ function changeSlide(n) {
 // Show the first slide on page load
 showSlide();
 
-  // Function to display the popup modal
-  function openModal() {
-    const modal = document.getElementById("user-modal");
-    modal.style.display = "block";
-  }
+  // // Function to display the popup modal
+  // function openModal() {
+  //   const modal = document.getElementById("user-modal");
+  //   modal.style.display = "block";
+  // }
   
   // Function to close the popup modal
   function closeModal() {
