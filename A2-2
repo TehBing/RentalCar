@@ -1,14 +1,13 @@
-REATE OR REPLACE FUNCTION ListCustomerOrders(customerNumber IN NUMBER)
+CREATE OR REPLACE FUNCTION ListCustomerOrders(customerNumber IN NUMBER)
 RETURN VARCHAR2 IS
     result VARCHAR2(4000);
 BEGIN
-	SELECT customer.c_custkey, customer.c_name || ':', LISTAGG(orders.o_orderkey, ', ') WITHIN GROUP (ORDER BY orders.o_orderkey) AS OrderList
-	INTO result
-	FROM customer
-	left join orders on customer.c_custkey = orders.o_custkey
-	where customer.c_custkey = customerNumber
-	group by customer.c_custkey, customer.c_name;
-	return result;
-
+    SELECT customer.c_custkey, customer.c_name || ':', LISTAGG(orders.o_orderkey, ', ') WITHIN GROUP (ORDER BY orders.o_orderkey) AS OrderList
+    INTO result
+    FROM customer
+    LEFT JOIN orders ON customer.c_custkey = orders.o_custkey
+    WHERE customer.c_custkey = customerNumber
+    GROUP BY customer.c_custkey, customer.c_name;
+    RETURN result;
 END ListCustomerOrders;
 /
