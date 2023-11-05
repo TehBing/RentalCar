@@ -7,7 +7,7 @@ SET SERVEROUTPUT ON
 
 create INDEX idx_Customer_acc ON customer(c_acctbal)
 create INDEX idx_supplierKN ON supplier(s_suppkey, s_name)
-create INDEX idx_linenumber_keys ON linenumber(l_suppkey,l_partkey, l_orderkey, l_linenumber, l_shipdate)
+create INDEX idx_lineitem_keys ON lineitem(l_suppkey,l_partkey, l_orderkey, l_linenumber, l_shipdate)
 
 EXPLAIN PLAN FOR
 SELECT DISTINCT p_brand,p_retailprice
@@ -47,41 +47,9 @@ spool off
 
 ////////////////////////////////////output
 
-SQL> Drop INDEX idx_Customer_acc
-  2  Drop INDEX idx_supplierKN ON
-  3  Drop INDEX idx_linenumber_keys
-  4  
-SQL> spool off
-SQL> Select * from table(dbms_xplan.display);                 
-
-PLAN_TABLE_OUTPUT
-----------------------------------------------------------------------------------------------------
-Plan hash value: 2183589723
-
------------------------------------------------------------------------------
-| Id  | Operation	   | Name   | Rows  | Bytes | Cost (%CPU)| Time     |
------------------------------------------------------------------------------
-|   0 | SELECT STATEMENT   |	    |  1000 | 16000 |  2708   (1)| 00:00:01 |
-|   1 |  HASH GROUP BY	   |	    |  1000 | 16000 |  2708   (1)| 00:00:01 |
-|   2 |   TABLE ACCESS FULL| ORDERS |	450K|  7031K|  2697   (1)| 00:00:01 |
------------------------------------------------------------------------------
-
-9 rows selected.
-
-SQL> 
-SQL> @/home/oracle/Task2_s1
-SP2-0310: unable to open file "/home/oracle/Task2_s1.sql"
-SQL> @/home/oracle/Task2_S1
-SQL> SPOOL file-name
-SQL> SET ECHO ON
-SQL> SET FEEDBACK ON
-SQL> SET LINESIZE 100
-SQL> SET PAGESIZE 200
-SQL> SET SERVEROUTPUT ON
-SQL> 
 SQL> create INDEX idx_Customer_acc ON customer(c_acctbal)
   2  create INDEX idx_supplierKN ON supplier(s_suppkey, s_name)
-  3  create INDEX idx_linenumber_keys ON linenumber(l_suppkey,l_partkey, l_orderkey, l_linenumber, l_shipdate)
+  3  create INDEX idx_lineitem_keys ON lineitem(l_suppkey,l_partkey, l_orderkey, l_linenumber, l_shipdate)
   4  
 SQL> EXPLAIN PLAN FOR
   2  SELECT DISTINCT p_brand,p_retailprice
@@ -223,6 +191,11 @@ Plan hash value: 1823825887
 
 SQL> 
 SQL> Drop INDEX idx_Customer_acc
+  2  Drop INDEX idx_supplierKN ON
+  3  Drop INDEX idx_linenumber_keys
+  4  
+SQL> spool off
+
   2  Drop INDEX idx_supplierKN ON
   3  Drop INDEX idx_linenumber_keys
   4  
