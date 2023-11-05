@@ -3,8 +3,13 @@ RETURN VARCHAR2 IS
     result VARCHAR2(4000);
 BEGIN
     SELECT 
-        'Customer#' || TO_CHAR(customer.c_custkey, 'FM000000000') || ' ' || customer.c_name || ': ' ||
-        COALESCE(LISTAGG(orders.o_orderkey, ', ') WITHIN GROUP (ORDER BY orders.o_orderkey), 'No orders')
+        TO_CHAR(customer.c_custkey) || ' ' || customer.c_name || ': ' ||
+	CASE
+	WHEN COUNT(orders.o_orderkey) > 0 then
+      		 LISTAGG(orders.o_orderkey, ', ') WITHIN GROUP (ORDER BY orders.o_orderkey)
+	ELSE
+		' '
+	END AS orderlist
     INTO result
     FROM customer
     LEFT JOIN orders ON customer.c_custkey = orders.o_custkey
@@ -14,8 +19,47 @@ BEGIN
     RETURN result;
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        RETURN 'Customer#' || TO_CHAR(customerNumber, 'FM000000000') || ' does not exist';
+        RETURN TO_CHAR(customerNumber) || ' does not exist';
     WHEN OTHERS THEN
         RETURN 'An error occurred';
 END ListCustomerOrders;
 /
+
+////////////////////////////////// result
+
+SQL> CREATE OR REPLACE FUNCTION ListCustomerOrders(customerNumber IN NUMBER)
+  2  RETURN VARCHAR2 IS
+  3  	 result VARCHAR2(4000);
+  4  BEGIN
+  5  	 SELECT
+  6  	     TO_CHAR(customer.c_custkey) || ' ' || customer.c_name || ': ' ||
+  7  	     CASE
+  8  	     WHEN COUNT(orders.o_orderkey) > 0 then
+  9  		      LISTAGG(orders.o_orderkey, ', ') WITHIN GROUP (ORDER BY orders.o_orderkey)
+ 10  	     ELSE
+ 11  		     ' '
+ 12  	     END AS orderlist
+ 13  	 INTO result
+ 14  	 FROM customer
+ 15  	 LEFT JOIN orders ON customer.c_custkey = orders.o_custkey
+ 16  	 WHERE customer.c_custkey = customerNumber
+ 17  	 GROUP BY customer.c_custkey, customer.c_name;
+ 18  
+ 19  	 RETURN result;
+ 20  EXCEPTION
+ 21  	 WHEN NO_DATA_FOUND THEN
+ 22  	     RETURN TO_CHAR(customerNumber) || ' does not exist';
+ 23  	 WHEN OTHERS THEN
+ 24  	     RETURN 'An error occurred';
+ 25  END ListCustomerOrders;
+ 26  /
+
+Function created.
+
+SQL> select ListCustomerOrders(44378) from dual;
+
+LISTCUSTOMERORDERS(44378)
+----------------------------------------------------------------------------------------------------
+44378 Customer#000044378: 57510, 853729, 911782, 916705, 1155013, 1345312, 1431554, 1747653, 1799012
+
+1 row selected.
