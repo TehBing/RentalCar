@@ -63,3 +63,39 @@ LISTCUSTOMERORDERS(44378)
 44378 Customer#000044378: 57510, 853729, 911782, 916705, 1155013, 1345312, 1431554, 1747653, 1799012
 
 1 row selected.
+
+
+//////////////////$$$
+CREATE OR REPLACE TRIGGER CheckSuppBal
+BEFORE INSERT OR UPDATE ON SUPPLIER
+FOR EACH ROW 
+BEGIN
+
+	IF :NEW.s_acctbal <=0 THEN
+		RAISE_APPLICATION_ERROR(-2000, 'Account balance must be more than 0');
+	END IF;
+END;
+/
+
+
+/////// result
+SQL> CREATE OR REPLACE TRIGGER CheckSuppBal
+  2  BEFORE INSERT OR UPDATE ON SUPPLIER
+  3  FOR EACH ROW
+  4  BEGIN
+  5  
+  6  	     IF :NEW.s_acctbal <=0 THEN
+  7  		     RAISE_APPLICATION_ERROR(-2000, 'Account balance must be more than 0');
+  8  	     END IF;
+  9  END;
+ 10  /
+
+Trigger created.
+
+SQL> INSERT INTO SUPPLIER (s_suppkey, s_acctbal) VALUES (1,0) ;
+INSERT INTO SUPPLIER (s_suppkey, s_acctbal) VALUES (1,0)
+            *
+ERROR at line 1:
+ORA-21000: error number argument to raise_application_error of -2000 is out of range
+ORA-06512: at "CSCI235.CHECKSUPPBAL", line 4
+ORA-04088: error during execution of trigger 'CSCI235.CHECKSUPPBAL'
