@@ -1,6 +1,10 @@
-SET serveroutput on
+SPOOL file-name
 SET ECHO ON
 SET FEEDBACK ON
+SET LINESIZE 100
+SET PAGESIZE 200
+SET SERVEROUTPUT ON
+
 CREATE OR REPLACE FUNCTION listCustomerOrders(customerKey IN NUMBER)
 RETURN VARCHAR2 IS
     result VARCHAR2(4000);
@@ -24,9 +28,47 @@ BEGIN
 
 END listCustomerOrders;
 /
+SPOOL OFF
 
 
 ///////////////////////////////////////////////////////////// result
+SQL> SPOOL file-name
+SQL> SET ECHO ON
+SQL> SET FEEDBACK ON
+SQL> SET LINESIZE 100
+SQL> SET PAGESIZE 200
+SQL> SET SERVEROUTPUT ON
+SQL> 
+SQL> CREATE OR REPLACE FUNCTION listCustomerOrders(customerKey IN NUMBER)
+  2  RETURN VARCHAR2 IS
+  3  	 result VARCHAR2(4000);
+  4  BEGIN
+  5  	 FOR order_rec IN (
+  6  		 SELECT customer.c_custkey,customer.c_name, orders.o_orderkey, orders.o_orderdate, orders.o_totalprice
+  7  		 FROM customer
+  8  		 JOIN orders ON customer.c_custkey = orders.o_custkey
+  9  		 WHERE customer.c_custkey = customerKey)
+ 10  	 LOOP
+ 11  	     result := result || order_rec.c_custkey || ' ' || order_rec.c_name || ' : ' || order_rec.o_orderkey || ' ' ||	     TO_CHAR(order_rec.o_orderdate, 'DD Month YYYY') || ' ' || order_rec.o_totalprice || CHR(10);
+ 12  	 END LOOP;
+ 13  
+ 14  	 IF LENGTH(result) > 0 THEN
+ 15  	     result := SUBSTR(result, 1, LENGTH(result) - 1);
+ 16  	 ELSE
+ 17  	     result := 'No data';
+ 18  	 END IF;
+ 19  
+ 20  	 RETURN result;
+ 21  
+ 22  END listCustomerOrders;
+ 23  /
+
+Function created.
+
+SQL> SPOOL OFF
+
+
+
 SQL> select listCustomerOrders(280) from dual;
 
 LISTCUSTOMERORDERS(280)
