@@ -1,0 +1,473 @@
+SPOOL file-name
+SET ECHO ON
+SET FEEDBACK ON
+SET LINESIZE 100
+SET PAGESIZE 200
+SET SERVEROUTPUT ON
+
+create index index_lineitem_rss on lineitem(l_receiptdate, l_shipdate , l_linestatus);
+EXPLAIN PLAN FOR
+select distinct l_receiptdate, l_shipdate , l_linestatus
+from lineitem;
+Select * from table(dbms_xplan.display);
+drop index index_lineitem_rss;
+
+
+create index index_supplier_nationkey on supplier(s_nationkey);
+EXPLAIN PLAN FOR
+select nation.n_name, count(supplier.s_nationkey) as suppliercount
+from nation
+join supplier on nation.n_nationkey = supplier.s_nationkey
+group by nation.n_name;
+Select * from table(dbms_xplan.display);
+drop index index_supplier_nationkey;
+
+
+create index index_orders_custkey on orders(o_custkey);
+EXPLAIN PLAN FOR
+select customer.c_custkey , count(orders.o_custkey) as totalOrders
+from customer
+left join orders on customer.c_custkey = orders.o_custkey
+group by customer.c_custkey;
+Select * from table(dbms_xplan.display);
+drop index index_orders_custkey;
+
+
+EXPLAIN PLAN FOR
+select l_shipdate
+from lineitem
+order by l_shipdate ASC;
+Select * from table(dbms_xplan.display);
+
+
+EXPLAIN PLAN FOR
+select s_nationkey,s_name ,s_phone
+from supplier 
+order by s_nationkey ASC;
+Select * from table(dbms_xplan.display);
+
+
+create index index_lineitem_os on lineitem(l_orderkey , l_linestatus);
+EXPLAIN PLAN FOR
+select l_orderkey , l_linestatus, count(*) as totalInstances
+from lineitem
+group by l_orderkey , l_linestatus;
+Select * from table(dbms_xplan.display);
+drop index index_lineitem_os;
+
+
+create index index_orders_s on orders(o_orderstatus);
+EXPLAIN PLAN FOR
+select o_orderstatus, count(o_orderstatus) as totaloccurrences
+from orders
+group by o_orderstatus;
+Select * from table(dbms_xplan.display);
+drop index index_orders_s;
+
+
+EXPLAIN PLAN FOR
+select ps_partkey, ps_suppkey , ps_supplycost
+from partsupp;
+Select * from table(dbms_xplan.display);
+
+
+create index index_orders_d on orders(o_orderdate);
+EXPLAIN PLAN FOR
+select EXTRACT(YEAR FROM o_orderdate) as year , count(o_orderkey) as totalorder
+from orders
+group by EXTRACT(YEAR FROM o_orderdate);
+Select * from table(dbms_xplan.display);
+drop index index_orders_d;
+
+
+create index index_partsupp_kc on partsupp(ps_suppkey , ps_supplycost);
+EXPLAIN PLAN FOR
+select ps_suppkey , ps_supplycost
+from partsupp;
+Select * from table(dbms_xplan.display);
+drop index index_partsupp_kc;
+
+SPOOL OFF
+
+/////////////////////////////////
+
+
+
+SQL> SPOOL file-name
+SQL> SET ECHO ON
+SQL> SET FEEDBACK ON
+SQL> SET LINESIZE 100
+SQL> SET PAGESIZE 200
+SQL> SET SERVEROUTPUT ON
+SQL> 
+SQL> create index index_lineitem_rss on lineitem(l_receiptdate, l_shipdate , l_linestatus);
+
+Index created.
+
+SQL> EXPLAIN PLAN FOR
+  2  select distinct l_receiptdate, l_shipdate , l_linestatus
+  3  from lineitem;
+
+Explained.
+
+SQL> Select * from table(dbms_xplan.display);
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------------
+Plan hash value: 3869338020
+
+----------------------------------------------------------------------------------------------------
+| Id  | Operation	      | Name		   | Rows  | Bytes |TempSpc| Cost (%CPU)| Time	   |
+----------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT      | 		   | 75518 |  1327K|	   |  6652   (1)| 00:00:01 |
+|   1 |  HASH UNIQUE	      | 		   | 75518 |  1327K|	48M|  6652   (1)| 00:00:01 |
+|   2 |   INDEX FAST FULL SCAN| INDEX_LINEITEM_RSS |  1800K|	30M|	   |  2741   (1)| 00:00:01 |
+----------------------------------------------------------------------------------------------------
+
+9 rows selected.
+
+SQL> drop index index_lineitem_rss;
+
+Index dropped.
+
+SQL> 
+SQL> 
+SQL> create index index_supplier_nationkey on supplier(s_nationkey);
+
+Index created.
+
+SQL> EXPLAIN PLAN FOR
+  2  select nation.n_name, count(supplier.s_nationkey) as suppliercount
+  3  from nation
+  4  join supplier on nation.n_nationkey = supplier.s_nationkey
+  5  group by nation.n_name;
+
+Explained.
+
+SQL> Select * from table(dbms_xplan.display);
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------------
+Plan hash value: 261567425
+
+----------------------------------------------------------------------------------------------------
+------
+
+| Id  | Operation		      | Name			 | Rows  | Bytes | Cost (%CPU)| Time
+     |
+
+----------------------------------------------------------------------------------------------------
+------
+
+|   0 | SELECT STATEMENT	      | 			 |    25 |   800 |     8  (25)| 00:0
+0:01 |
+
+|   1 |  HASH GROUP BY		      | 			 |    25 |   800 |     8  (25)| 00:0
+0:01 |
+
+|   2 |   MERGE JOIN		      | 			 |  3000 | 96000 |     7  (15)| 00:0
+0:01 |
+
+|   3 |    TABLE ACCESS BY INDEX ROWID| NATION			 |    25 |   725 |     2   (0)| 00:0
+0:01 |
+
+|   4 |     INDEX FULL SCAN	      | NATION_PKEY		 |    25 |	 |     1   (0)| 00:0
+0:01 |
+
+|*  5 |    SORT JOIN		      | 			 |  3000 |  9000 |     5  (20)| 00:0
+0:01 |
+
+|*  6 |     INDEX FAST FULL SCAN      | INDEX_SUPPLIER_NATIONKEY |  3000 |  9000 |     4   (0)| 00:0
+0:01 |
+
+----------------------------------------------------------------------------------------------------
+------
+
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   5 - access("NATION"."N_NATIONKEY"="SUPPLIER"."S_NATIONKEY")
+       filter("NATION"."N_NATIONKEY"="SUPPLIER"."S_NATIONKEY")
+   6 - filter("SUPPLIER"."S_NATIONKEY">=0)
+
+20 rows selected.
+
+SQL> drop index index_supplier_nationkey;
+
+Index dropped.
+
+SQL> 
+SQL> 
+SQL> create index index_orders_custkey on orders(o_custkey);
+
+Index created.
+
+SQL> EXPLAIN PLAN FOR
+  2  select customer.c_custkey , count(orders.o_custkey) as totalOrders
+  3  from customer
+  4  left join orders on customer.c_custkey = orders.o_custkey
+  5  group by customer.c_custkey;
+
+Explained.
+
+SQL> Select * from table(dbms_xplan.display);
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------------
+Plan hash value: 3305610900
+
+----------------------------------------------------------------------------------------------------
+----
+
+| Id  | Operation		| Name		       | Rows  | Bytes |TempSpc| Cost (%CPU)| Time
+   |
+
+----------------------------------------------------------------------------------------------------
+----
+
+|   0 | SELECT STATEMENT	|		       | 45000 |  1362K|       |   960	 (2)| 00:00:
+01 |
+
+|*  1 |  HASH JOIN OUTER	|		       | 45000 |  1362K|       |   960	 (2)| 00:00:
+01 |
+
+|   2 |   INDEX FAST FULL SCAN	| CUSTOMER_PKEY        | 45000 |   219K|       |    33	 (0)| 00:00:
+01 |
+
+|   3 |   VIEW			| VW_GBC_5	       | 30162 |   765K|       |   927	 (2)| 00:00:
+01 |
+
+|   4 |    HASH GROUP BY	|		       | 30162 |   147K|  5304K|   927	 (2)| 00:00:
+01 |
+
+|*  5 |     INDEX FAST FULL SCAN| INDEX_ORDERS_CUSTKEY |   450K|  2197K|       |   375	 (1)| 00:00:
+01 |
+
+----------------------------------------------------------------------------------------------------
+----
+
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   1 - access("CUSTOMER"."C_CUSTKEY"="ITEM_1"(+))
+   5 - filter("ORDERS"."O_CUSTKEY">=0)
+
+18 rows selected.
+
+SQL> drop index index_orders_custkey;
+
+Index dropped.
+
+SQL> 
+SQL> 
+SQL> EXPLAIN PLAN FOR
+  2  select l_shipdate
+  3  from lineitem
+  4  order by l_shipdate ASC;
+
+Explained.
+
+SQL> Select * from table(dbms_xplan.display);
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------------
+Plan hash value: 1823825887
+
+---------------------------------------------------------------------------------------
+| Id  | Operation	   | Name     | Rows  | Bytes |TempSpc| Cost (%CPU)| Time     |
+---------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT   |	      |  1800K|    13M|       | 18660	(1)| 00:00:01 |
+|   1 |  SORT ORDER BY	   |	      |  1800K|    13M|    27M| 18660	(1)| 00:00:01 |
+|   2 |   TABLE ACCESS FULL| LINEITEM |  1800K|    13M|       | 12153	(1)| 00:00:01 |
+---------------------------------------------------------------------------------------
+
+9 rows selected.
+
+SQL> 
+SQL> 
+SQL> EXPLAIN PLAN FOR
+  2  select s_nationkey,s_name ,s_phone
+  3  from supplier
+  4  order by s_nationkey ASC;
+
+Explained.
+
+SQL> Select * from table(dbms_xplan.display);
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------------
+Plan hash value: 3317074190
+
+-------------------------------------------------------------------------------
+| Id  | Operation	   | Name     | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT   |	      |  3000 |   131K|    35	(3)| 00:00:01 |
+|   1 |  SORT ORDER BY	   |	      |  3000 |   131K|    35	(3)| 00:00:01 |
+|   2 |   TABLE ACCESS FULL| SUPPLIER |  3000 |   131K|    34	(0)| 00:00:01 |
+-------------------------------------------------------------------------------
+
+9 rows selected.
+
+SQL> 
+SQL> 
+SQL> create index index_lineitem_os on lineitem(l_orderkey , l_linestatus);
+
+Index created.
+
+SQL> EXPLAIN PLAN FOR
+  2  select l_orderkey , l_linestatus, count(*) as totalInstances
+  3  from lineitem
+  4  group by l_orderkey , l_linestatus;
+
+Explained.
+
+SQL> Select * from table(dbms_xplan.display);
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------------
+Plan hash value: 196541218
+
+------------------------------------------------------------------------------------------
+| Id  | Operation	     | Name		 | Rows  | Bytes | Cost (%CPU)| Time	 |
+------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT     |			 |   461K|  3606K|  4640   (1)| 00:00:01 |
+|   1 |  SORT GROUP BY NOSORT|			 |   461K|  3606K|  4640   (1)| 00:00:01 |
+|   2 |   INDEX FULL SCAN    | INDEX_LINEITEM_OS |  1800K|    13M|  4640   (1)| 00:00:01 |
+------------------------------------------------------------------------------------------
+
+9 rows selected.
+
+SQL> drop index index_lineitem_os;
+
+Index dropped.
+
+SQL> 
+SQL> 
+SQL> create index index_orders_s on orders(o_orderstatus);
+
+Index created.
+
+SQL> EXPLAIN PLAN FOR
+  2  select o_orderstatus, count(o_orderstatus) as totaloccurrences
+  3  from orders
+  4  group by o_orderstatus;
+
+Explained.
+
+SQL> Select * from table(dbms_xplan.display);
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------------
+Plan hash value: 1868456825
+
+----------------------------------------------------------------------------------------
+| Id  | Operation	      | Name	       | Rows  | Bytes | Cost (%CPU)| Time     |
+----------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT      | 	       |     3 |     6 |   320	 (5)| 00:00:01 |
+|   1 |  HASH GROUP BY	      | 	       |     3 |     6 |   320	 (5)| 00:00:01 |
+|   2 |   INDEX FAST FULL SCAN| INDEX_ORDERS_S |   450K|   878K|   309	 (1)| 00:00:01 |
+----------------------------------------------------------------------------------------
+
+9 rows selected.
+
+SQL> drop index index_orders_s;
+
+Index dropped.
+
+SQL> 
+SQL> 
+SQL> EXPLAIN PLAN FOR
+  2  select ps_partkey, ps_suppkey , ps_supplycost
+  3  from partsupp;
+
+Explained.
+
+SQL> Select * from table(dbms_xplan.display);
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------------
+Plan hash value: 1162167413
+
+------------------------------------------------------------------------------
+| Id  | Operation	  | Name     | Rows  | Bytes | Cost (%CPU)| Time     |
+------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |	     |	 240K|	3281K|	1856   (1)| 00:00:01 |
+|   1 |  TABLE ACCESS FULL| PARTSUPP |	 240K|	3281K|	1856   (1)| 00:00:01 |
+------------------------------------------------------------------------------
+
+8 rows selected.
+
+SQL> 
+SQL> 
+SQL> create index index_orders_d on orders(o_orderdate);
+
+Index created.
+
+SQL> EXPLAIN PLAN FOR
+  2  select EXTRACT(YEAR FROM o_orderdate) as year , count(o_orderkey) as totalorder
+  3  from orders
+  4  group by EXTRACT(YEAR FROM o_orderdate);
+
+Explained.
+
+SQL> Select * from table(dbms_xplan.display);
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------------
+Plan hash value: 970759628
+
+----------------------------------------------------------------------------------------
+| Id  | Operation	      | Name	       | Rows  | Bytes | Cost (%CPU)| Time     |
+----------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT      | 	       |  2406 | 19248 |   463	 (3)| 00:00:01 |
+|   1 |  HASH GROUP BY	      | 	       |  2406 | 19248 |   463	 (3)| 00:00:01 |
+|   2 |   INDEX FAST FULL SCAN| INDEX_ORDERS_D |   450K|  3515K|   452	 (1)| 00:00:01 |
+----------------------------------------------------------------------------------------
+
+9 rows selected.
+
+SQL> drop index index_orders_d;
+
+Index dropped.
+
+SQL> 
+SQL> 
+SQL> create index index_partsupp_kc on partsupp(ps_suppkey , ps_supplycost);
+
+Index created.
+
+SQL> EXPLAIN PLAN FOR
+  2  select ps_suppkey , ps_supplycost
+  3  from partsupp;
+
+Explained.
+
+SQL> Select * from table(dbms_xplan.display);
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------------
+Plan hash value: 295026948
+
+------------------------------------------------------------------------------------------
+| Id  | Operation	     | Name		 | Rows  | Bytes | Cost (%CPU)| Time	 |
+------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT     |			 |   240K|  2109K|   252   (1)| 00:00:01 |
+|   1 |  INDEX FAST FULL SCAN| INDEX_PARTSUPP_KC |   240K|  2109K|   252   (1)| 00:00:01 |
+------------------------------------------------------------------------------------------
+
+8 rows selected.
+
+SQL> drop index index_partsupp_kc;
+
+Index dropped.
+
+SQL> 
+SQL> SPOOL OFF
+
+
+
+
+
+
