@@ -1,0 +1,26 @@
+SPOOL file-name
+SET ECHO ON
+SET FEEDBACK ON
+SET LINESIZE 100
+SET PAGESIZE 200
+SET SERVEROUTPUT ON
+
+create or replace procedure numberOfSupplier(X IN NUMBER) AS
+BEGIN
+
+FOR currentrow IN (
+
+select region.r_name , nation.n_name , count(supplier.s_nationkey) as keycount
+from supplier 
+join nation on supplier.s_nationkey = nation.n_nationkey
+join region on nation.n_regionkey = region.r_regionkey
+group by region.r_name, nation.n_name          
+having count(supplier.s_nationkey) > X )
+
+LOOP
+dbms_output.put_line(currentrow.r_name || currentrow.n_name || currentrow.keycount);
+END LOOP;
+
+END;
+/
+spool off
