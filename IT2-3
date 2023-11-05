@@ -24,3 +24,46 @@ END LOOP;
 END;
 /
 spool off
+
+////////////////////////////
+
+SQL> SPOOL file-name
+SQL> SET ECHO ON
+SQL> SET FEEDBACK ON
+SQL> SET LINESIZE 100
+SQL> SET PAGESIZE 200
+SQL> SET SERVEROUTPUT ON
+SQL> 
+SQL> create or replace procedure numberOfSupplier(X IN NUMBER) AS
+  2  BEGIN
+  3  
+  4  FOR currentrow IN (
+  5  
+  6  select region.r_name , nation.n_name , count(supplier.s_nationkey) as keycount
+  7  from supplier
+  8  join nation on supplier.s_nationkey = nation.n_nationkey
+  9  join region on nation.n_regionkey = region.r_regionkey
+ 10  group by region.r_name, nation.n_name
+ 11  having count(supplier.s_nationkey) > X )
+ 12  
+ 13  LOOP
+ 14  dbms_output.put_line(currentrow.r_name || currentrow.n_name || currentrow.keycount);
+ 15  END LOOP;
+ 16  
+ 17  END;
+ 18  /
+
+Procedure created.
+
+begin
+  2  numberofsupplier(130);
+  3  end;
+  4  /
+ASIA			 INDONESIA		  131
+ASIA			 CHINA			  145
+MIDDLE EAST		 SAUDI ARABIA		  132
+EUROPE			 GERMANY		  132
+
+PL/SQL procedure successfully completed.
+
+
