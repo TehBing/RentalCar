@@ -1,0 +1,229 @@
+SPOOL file-name
+SET ECHO ON
+SET FEEDBACK ON
+SET LINESIZE 100
+SET PAGESIZE 200
+SET SERVEROUTPUT ON
+
+create INDEX idx_Customer_acc ON customer(c_acctbal)
+create INDEX idx_supplierKN ON supplier(s_suppkey, s_name)
+create INDEX idx_linenumber_keys ON linenumber(l_suppkey,l_partkey, l_orderkey, l_linenumber, l_shipdate)
+
+EXPLAIN PLAN FOR
+SELECT DISTINCT p_brand,p_retailprice
+from PART;
+Select * from table(dbms_xplan.display);
+
+EXPLAIN PLAN FOR
+select COUNT(*) as total_acctbal
+from customer
+where c_acctbal < (select avg(c_acctbal) from customer);
+Select * from table(dbms_xplan.display);
+
+EXPLAIN PLAN FOR
+select supplier.s_suppkey , supplier.s_name , count(partsupp.ps_partkey) as totalparts
+from supplier
+left join partsupp on supplier.s_suppkey = partsupp.ps_partkey
+group by supplier.s_suppkey , supplier.s_name;  
+Select * from table(dbms_xplan.display);                 
+
+EXPLAIN PLAN FOR
+select o_clerk , count(o_orderkey) as totalorder
+from orders
+group by o_clerk;  
+Select * from table(dbms_xplan.display);
+
+EXPLAIN PLAN FOR
+select l_orderkey , l_linenumber, l_partkey , l_suppkey , l_shipdate
+from lineitem
+order by l_suppkey,l_partkey, l_orderkey, l_linenumber, l_shipdate;
+Select * from table(dbms_xplan.display);                 
+
+Drop INDEX idx_Customer_acc
+Drop INDEX idx_supplierKN ON
+Drop INDEX idx_linenumber_keys 
+
+spool off
+
+////////////////////////////////////output
+
+SQL> Drop INDEX idx_Customer_acc
+  2  Drop INDEX idx_supplierKN ON
+  3  Drop INDEX idx_linenumber_keys
+  4  
+SQL> spool off
+SQL> Select * from table(dbms_xplan.display);                 
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------------
+Plan hash value: 2183589723
+
+-----------------------------------------------------------------------------
+| Id  | Operation	   | Name   | Rows  | Bytes | Cost (%CPU)| Time     |
+-----------------------------------------------------------------------------
+|   0 | SELECT STATEMENT   |	    |  1000 | 16000 |  2708   (1)| 00:00:01 |
+|   1 |  HASH GROUP BY	   |	    |  1000 | 16000 |  2708   (1)| 00:00:01 |
+|   2 |   TABLE ACCESS FULL| ORDERS |	450K|  7031K|  2697   (1)| 00:00:01 |
+-----------------------------------------------------------------------------
+
+9 rows selected.
+
+SQL> 
+SQL> @/home/oracle/Task2_s1
+SP2-0310: unable to open file "/home/oracle/Task2_s1.sql"
+SQL> @/home/oracle/Task2_S1
+SQL> SPOOL file-name
+SQL> SET ECHO ON
+SQL> SET FEEDBACK ON
+SQL> SET LINESIZE 100
+SQL> SET PAGESIZE 200
+SQL> SET SERVEROUTPUT ON
+SQL> 
+SQL> create INDEX idx_Customer_acc ON customer(c_acctbal)
+  2  create INDEX idx_supplierKN ON supplier(s_suppkey, s_name)
+  3  create INDEX idx_linenumber_keys ON linenumber(l_suppkey,l_partkey, l_orderkey, l_linenumber, l_shipdate)
+  4  
+SQL> EXPLAIN PLAN FOR
+  2  SELECT DISTINCT p_brand,p_retailprice
+  3  from PART;
+
+Explained.
+
+SQL> Select * from table(dbms_xplan.display);
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------------
+Plan hash value: 2883546333
+
+-----------------------------------------------------------------------------------
+| Id  | Operation	   | Name | Rows  | Bytes |TempSpc| Cost (%CPU)| Time	  |
+-----------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT   |	  | 60000 |   937K|	  |   723   (1)| 00:00:01 |
+|   1 |  HASH UNIQUE	   |	  | 60000 |   937K|  1424K|   723   (1)| 00:00:01 |
+|   2 |   TABLE ACCESS FULL| PART | 60000 |   937K|	  |   401   (1)| 00:00:01 |
+-----------------------------------------------------------------------------------
+
+9 rows selected.
+
+SQL> 
+SQL> EXPLAIN PLAN FOR
+  2  select COUNT(*) as total_acctbal
+  3  from customer
+  4  where c_acctbal < (select avg(c_acctbal) from customer);
+
+Explained.
+
+SQL> Select * from table(dbms_xplan.display);
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------------
+Plan hash value: 2135342008
+
+---------------------------------------------------------------------------------
+| Id  | Operation	     | Name	| Rows	| Bytes | Cost (%CPU)| Time	|
+---------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT     |		|     1 |     6 |   779   (1)| 00:00:01 |
+|   1 |  SORT AGGREGATE      |		|     1 |     6 |	     |		|
+|*  2 |   TABLE ACCESS FULL  | CUSTOMER |  2250 | 13500 |   390   (1)| 00:00:01 |
+|   3 |    SORT AGGREGATE    |		|     1 |     6 |	     |		|
+|   4 |     TABLE ACCESS FULL| CUSTOMER | 45000 |   263K|   389   (0)| 00:00:01 |
+---------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   2 - filter("C_ACCTBAL"< (SELECT SUM("C_ACCTBAL")/COUNT("C_ACCTBAL")
+	      FROM "CUSTOMER" "CUSTOMER"))
+
+17 rows selected.
+
+SQL> 
+SQL> EXPLAIN PLAN FOR
+  2  select supplier.s_suppkey , supplier.s_name , count(partsupp.ps_partkey) as totalparts
+  3  from supplier
+  4  left join partsupp on supplier.s_suppkey = partsupp.ps_partkey
+  5  group by supplier.s_suppkey , supplier.s_name;
+
+Explained.
+
+SQL> Select * from table(dbms_xplan.display);
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------------
+Plan hash value: 557761642
+
+------------------------------------------------------------------------------------------------
+| Id  | Operation	       | Name	       | Rows  | Bytes |TempSpc| Cost (%CPU)| Time     |
+------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT       |	       | 11910 |   407K|       |   470	 (1)| 00:00:01 |
+|   1 |  HASH GROUP BY	       |	       | 11910 |   407K|   528K|   470	 (1)| 00:00:01 |
+|*  2 |   HASH JOIN OUTER      |	       | 11910 |   407K|       |   357	 (1)| 00:00:01 |
+|   3 |    TABLE ACCESS FULL   | SUPPLIER      |  3000 | 90000 |       |    34	 (0)| 00:00:01 |
+|   4 |    INDEX FAST FULL SCAN| PARTSUPP_PKEY |   240K|  1171K|       |   322	 (1)| 00:00:01 |
+------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   2 - access("SUPPLIER"."S_SUPPKEY"="PARTSUPP"."PS_PARTKEY"(+))
+
+Note
+-----
+   - this is an adaptive plan
+
+20 rows selected.
+
+SQL> 
+SQL> EXPLAIN PLAN FOR
+  2  select o_clerk , count(o_orderkey) as totalorder
+  3  from orders
+  4  group by o_clerk;
+
+Explained.
+
+SQL> Select * from table(dbms_xplan.display);
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------------
+Plan hash value: 2183589723
+
+-----------------------------------------------------------------------------
+| Id  | Operation	   | Name   | Rows  | Bytes | Cost (%CPU)| Time     |
+-----------------------------------------------------------------------------
+|   0 | SELECT STATEMENT   |	    |  1000 | 16000 |  2708   (1)| 00:00:01 |
+|   1 |  HASH GROUP BY	   |	    |  1000 | 16000 |  2708   (1)| 00:00:01 |
+|   2 |   TABLE ACCESS FULL| ORDERS |	450K|  7031K|  2697   (1)| 00:00:01 |
+-----------------------------------------------------------------------------
+
+9 rows selected.
+
+SQL> 
+SQL> EXPLAIN PLAN FOR
+  2  select l_orderkey , l_linenumber, l_partkey , l_suppkey , l_shipdate
+  3  from lineitem
+  4  order by l_suppkey,l_partkey, l_orderkey, l_linenumber, l_shipdate;
+
+Explained.
+
+SQL> Select * from table(dbms_xplan.display);
+
+PLAN_TABLE_OUTPUT
+----------------------------------------------------------------------------------------------------
+Plan hash value: 1823825887
+
+---------------------------------------------------------------------------------------
+| Id  | Operation	   | Name     | Rows  | Bytes |TempSpc| Cost (%CPU)| Time     |
+---------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT   |	      |  1800K|    44M|       | 25458	(1)| 00:00:01 |
+|   1 |  SORT ORDER BY	   |	      |  1800K|    44M|    68M| 25458	(1)| 00:00:01 |
+|   2 |   TABLE ACCESS FULL| LINEITEM |  1800K|    44M|       | 12153	(1)| 00:00:01 |
+---------------------------------------------------------------------------------------
+
+9 rows selected.
+
+SQL> 
+SQL> Drop INDEX idx_Customer_acc
+  2  Drop INDEX idx_supplierKN ON
+  3  Drop INDEX idx_linenumber_keys
+  4  
+SQL> spool off
