@@ -1,0 +1,64 @@
+SET serveroutput on
+SET ECHO ON
+SET FEEDBACK ON
+CREATE OR REPLACE FUNCTION listCustomerOrders(customerKey IN NUMBER)
+RETURN VARCHAR2 IS
+    result VARCHAR2(4000);
+BEGIN
+    FOR order_rec IN (
+	    SELECT customer.c_custkey,customer.c_name, orders.o_orderkey, orders.o_orderdate, orders.o_totalprice 
+	    FROM customer
+	    JOIN orders ON customer.c_custkey = orders.o_custkey 
+	    WHERE customer.c_custkey = customerKey)
+    LOOP
+        result := result || order_rec.c_custkey || ' ' || order_rec.c_name || ' : ' || order_rec.o_orderkey || ' ' || 		TO_CHAR(order_rec.o_orderdate, 'DD Month YYYY') || ' ' || order_rec.o_totalprice || CHR(10);
+    END LOOP;
+
+    IF LENGTH(result) > 0 THEN
+        result := SUBSTR(result, 1, LENGTH(result) - 1);
+    ELSE
+        result := 'No data';
+    END IF;
+
+    RETURN result;
+
+END listCustomerOrders;
+/
+
+
+///////////////////////////////////////////////////////////// result
+SQL> select listCustomerOrders(280) from dual;
+
+LISTCUSTOMERORDERS(280)
+----------------------------------------------------------------------------------------------------
+280 Customer#000000280 : 11431 02 August    1992 295188.77
+280 Customer#000000280 : 9862 10 October   1997 210989.58
+280 Customer#000000280 : 66791 18 August    1992 42096.81
+280 Customer#000000280 : 145024 27 October   1997 31277.87
+280 Customer#000000280 : 151872 26 July      1995 199563.99
+280 Customer#000000280 : 250471 09 February  1995 108738.19
+280 Customer#000000280 : 253538 08 October   1993 98980.41
+280 Customer#000000280 : 403460 06 January   1992 173329.32
+280 Customer#000000280 : 455139 07 July      1996 402076.23
+280 Customer#000000280 : 455175 31 May	     1997 167607.66
+280 Customer#000000280 : 490624 04 November  1995 271224.38
+280 Customer#000000280 : 554272 12 August    1996 88445.93
+280 Customer#000000280 : 580452 25 June      1992 286336.7
+280 Customer#000000280 : 653090 04 July      1994 62047.82
+280 Customer#000000280 : 664225 31 December  1995 264703.61
+280 Customer#000000280 : 777475 07 November  1996 343423.41
+280 Customer#000000280 : 897474 26 October   1992 341797.2
+280 Customer#000000280 : 991424 25 February  1998 32885.33
+280 Customer#000000280 : 1021026 06 July      1994 106036.15
+280 Customer#000000280 : 1029857 05 April     1993 227614.74
+280 Customer#000000280 : 1097767 06 October   1996 137018.47
+280 Customer#000000280 : 1225764 04 October   1996 56284.36
+280 Customer#000000280 : 1266501 30 October   1997 267081.48
+280 Customer#000000280 : 1425095 30 April     1996 74247.41
+280 Customer#000000280 : 1447009 12 February  1995 278253.4
+280 Customer#000000280 : 1522978 11 June      1992 121555.48
+280 Customer#000000280 : 1620292 12 October   1994 303230.02
+280 Customer#000000280 : 1782020 24 February  1996 59384.31
+
+
+1 row selected.
